@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "taskparams",
+  "info": {
+    "singularName": "taskparam",
+    "pluralName": "taskparams",
+    "displayName": "Task Param"
+  },
+  "options": {
+    "draftAndPublish": true,
+    "comment": ""
+  },
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "data": {
+      "type": "json"
+    }
+  },
+    "pluginOptions": {
+    "content-manager": { 
+      "visible": true
+    },
+
+    "content-type-builder": {
+      "visible": true
+    }
+  }
+  
+}

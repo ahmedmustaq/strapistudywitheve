@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "taskparams",
+  "info": {
+    "singularName": "taskparam",
+    "pluralName": "taskparams",
+    "displayName": "Task Param",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "content-manager": {
+      "visible": true
+    },
+    "content-type-builder": {
+      "visible": true
+    }
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "maxLength": 50,
+      "default": "3"
+    },
+    "source": {
+      "type": "enumeration",
+      "enum": [
+        "Environment",
+        "Static",
+        "Input",
+        "Output",
+        "Param",
+        "Content",
+        "Options"
+      ]
+    },
+    "value": {
+      "type": "json"
+    }
+  }
+}

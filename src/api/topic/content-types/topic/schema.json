@@ -1,0 +1,66 @@
+{
+  "kind": "collectionType",
+  "collectionName": "topics",
+  "info": {
+    "singularName": "topic",
+    "pluralName": "topics",
+    "displayName": "Topic",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "topicNumber": {
+      "type": "string"
+    },
+    "parent": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::topic.topic"
+    },
+    "gradelevels": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::gradelevel.gradelevel",
+      "mappedBy": "topics"
+    },
+    "subject": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::subject.subject"
+    },
+    "url": {
+      "type": "string"
+    },
+    "group": {
+      "type": "string"
+    },
+    "topic_grades": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::topic-grade.topic-grade",
+      "mappedBy": "topics"
+    },
+    "specs": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

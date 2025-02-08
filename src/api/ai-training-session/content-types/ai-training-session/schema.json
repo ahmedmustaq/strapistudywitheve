@@ -1,0 +1,71 @@
+{
+  "kind": "collectionType",
+  "collectionName": "ai_training_sessions",
+  "info": {
+    "singularName": "ai-training-session",
+    "pluralName": "ai-training-sessions",
+    "displayName": "AITrainingSession",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "topic": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::topic.topic"
+    },
+    "resources": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::resource.resource"
+    },
+    "difficulty": {
+      "type": "enumeration",
+      "enum": [
+        "Easy",
+        "Medium",
+        "Hard"
+      ]
+    },
+    "questions": {
+      "type": "json"
+    },
+    "marks": {
+      "type": "json"
+    },
+    "finalscore": {
+      "type": "integer"
+    },
+    "feedback": {
+      "type": "text"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "InProgress",
+        "Completed",
+        "Abandoned"
+      ]
+    },
+    "student": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::student.student"
+    },
+    "questiontypes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::questiontype.questiontype",
+      "mappedBy": "ai_training_session"
+    }
+  }
+}

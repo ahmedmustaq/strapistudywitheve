@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "studyprojects",
+  "info": {
+    "singularName": "studyproject",
+    "pluralName": "studyprojects",
+    "displayName": "Studyproject",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "objectives": {
+      "type": "string"
+    },
+    "student": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::student.student",
+      "inversedBy": "studyprojects"
+    },
+    "code": {
+      "type": "uid",
+      "targetField": "name"
+    },
+    "startDate": {
+      "type": "date"
+    },
+    "endDate": {
+      "type": "date"
+    },
+    "assessments": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::assessment.assessment"
+    }
+  }
+}

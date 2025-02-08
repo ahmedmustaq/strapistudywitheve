@@ -1,0 +1,57 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tasks",
+  "info": {
+    "singularName": "task",
+    "pluralName": "tasks",
+    "displayName": "Task",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "content-manager": {
+      "visible": true
+    },
+    "content-type-builder": {
+      "visible": true
+    }
+  },
+  "attributes": {
+    "workflow_task_params": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::workflow.taskparam"
+    },
+    "workflow_task_events": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::workflow.taskevent"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "Rest",
+        "ChatGPT",
+        "Gemini",
+        "PDFProcessor",
+        "Asset",
+        "Echo",
+        "Noop",
+        "Web"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "config": {
+      "type": "json",
+      "required": true
+    },
+    "order": {
+      "type": "integer"
+    }
+  }
+}

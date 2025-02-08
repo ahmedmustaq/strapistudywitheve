@@ -1,0 +1,35 @@
+{
+  "kind": "collectionType",
+  "collectionName": "resourcetypes",
+  "info": {
+    "singularName": "resourcetype",
+    "pluralName": "resourcetypes",
+    "displayName": "Resourcetype"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "icon": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": true
+    },
+    "code": {
+      "type": "string"
+    },
+    "status": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

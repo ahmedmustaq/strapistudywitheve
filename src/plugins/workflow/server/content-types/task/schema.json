@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tasks",
+  "info": {
+    "singularName": "task",
+    "pluralName": "tasks",
+    "displayName": "Task"
+  },
+  "options": {
+    "draftAndPublish": false,
+    "comment": ""
+  },
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "data": {
+      "type": "json"
+    }
+  },
+    "pluginOptions": {
+    "content-manager": { 
+      "visible": true
+    },
+
+    "content-type-builder": {
+      "visible": true
+    }
+  }
+  
+}

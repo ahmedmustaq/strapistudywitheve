@@ -1,0 +1,42 @@
+{
+  "kind": "collectionType",
+  "collectionName": "workflows",
+  "info": {
+    "singularName": "workflow",
+    "pluralName": "workflows",
+    "displayName": "workflow",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "content-manager": {
+      "visible": true
+    },
+    "content-type-builder": {
+      "visible": true
+    }
+  },
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "workflow_tasks": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::workflow.task"
+    },
+    "uidata": {
+      "type": "json"
+    },
+    "workflow_params": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::workflow.taskparam"
+    }
+  }
+}

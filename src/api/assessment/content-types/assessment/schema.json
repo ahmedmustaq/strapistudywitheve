@@ -1,0 +1,54 @@
+{
+  "kind": "collectionType",
+  "collectionName": "assessments",
+  "info": {
+    "singularName": "assessment",
+    "pluralName": "assessments",
+    "displayName": "Assessment",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "code": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    },
+    "maxScore": {
+      "type": "integer"
+    },
+    "academic_qualification": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::academic-qualification.academic-qualification"
+    },
+    "examboard": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::examboard.examboard"
+    },
+    "assessment_criteria": {
+      "type": "json"
+    },
+    "subjects": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::subject.subject"
+    },
+    "topics": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::topic.topic"
+    },
+    "gradelevel": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::gradelevel.gradelevel"
+    }
+  }
+}

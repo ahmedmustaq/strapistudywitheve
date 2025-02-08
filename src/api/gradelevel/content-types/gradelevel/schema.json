@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "gradelevels",
+  "info": {
+    "singularName": "gradelevel",
+    "pluralName": "gradelevels",
+    "displayName": "Gradelevel",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "gradeName": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "subjects": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::subject.subject"
+    },
+    "topics": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::topic.topic",
+      "inversedBy": "gradelevels"
+    }
+  }
+}

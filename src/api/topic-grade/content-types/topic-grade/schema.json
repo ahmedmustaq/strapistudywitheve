@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "topic_grades",
+  "info": {
+    "singularName": "topic-grade",
+    "pluralName": "topic-grades",
+    "displayName": "TopicGrade"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "topics": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::topic.topic",
+      "inversedBy": "topic_grades"
+    },
+    "grade": {
+      "type": "string"
+    },
+    "createddate": {
+      "type": "datetime"
+    },
+    "ai_training_session": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::ai-training-session.ai-training-session"
+    }
+  }
+}

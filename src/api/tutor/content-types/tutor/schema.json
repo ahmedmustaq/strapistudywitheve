@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tutors",
+  "info": {
+    "singularName": "tutor",
+    "pluralName": "tutors",
+    "displayName": "Tutor",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "experienceYears": {
+      "type": "string"
+    },
+    "subjects": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::subject.subject",
+      "mappedBy": "tutor"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "kind": "collectionType",
+  "collectionName": "examboards",
+  "info": {
+    "singularName": "examboard",
+    "pluralName": "examboards",
+    "displayName": "Examboard",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "boardName": {
+      "type": "string"
+    },
+    "boardType": {
+      "type": "enumeration",
+      "enum": [
+        "National",
+        "International",
+        "State"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "assessmentCriteria": {
+      "type": "json"
+    },
+    "subjects": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::subject.subject"
+    },
+    "gradelevels": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::gradelevel.gradelevel"
+    },
+    "academic_qualification": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::academic-qualification.academic-qualification"
+    }
+  }
+}

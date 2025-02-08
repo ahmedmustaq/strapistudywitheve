@@ -1,0 +1,52 @@
+{
+  "kind": "collectionType",
+  "collectionName": "taskevents",
+  "info": {
+    "singularName": "taskevent",
+    "pluralName": "taskevents",
+    "displayName": "Task Event",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "content-manager": {
+      "visible": true
+    },
+    "content-type-builder": {
+      "visible": true
+    }
+  },
+  "attributes": {
+    "workflow_task": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::workflow.task"
+    },
+    "workflow_workflow_instance": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::workflow.workflowinstance"
+    },
+    "timestamp": {
+      "type": "datetime"
+    },
+    "data": {
+      "type": "json"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "Started",
+        "In-progress",
+        "Failed",
+        "Completed"
+      ]
+    },
+    "eventname": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

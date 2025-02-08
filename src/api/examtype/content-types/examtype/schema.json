@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "examtypes",
+  "info": {
+    "singularName": "examtype",
+    "pluralName": "examtypes",
+    "displayName": "Studytype",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "level": {
+      "type": "enumeration",
+      "enum": [
+        "Primary",
+        "Secondary",
+        "Higher Secondary",
+        "College",
+        "Research",
+        "Work"
+      ]
+    },
+    "format": {
+      "type": "string"
+    },
+    "duration": {
+      "type": "integer"
+    },
+    "studyboard": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::examboard.examboard"
+    },
+    "status": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

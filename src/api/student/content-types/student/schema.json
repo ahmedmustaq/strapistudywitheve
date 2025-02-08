@@ -1,0 +1,60 @@
+{
+  "kind": "collectionType",
+  "collectionName": "students",
+  "info": {
+    "singularName": "student",
+    "pluralName": "students",
+    "displayName": "Student",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "studyprojects": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::studyproject.studyproject",
+      "mappedBy": "student"
+    },
+    "academic_qualification": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::academic-qualification.academic-qualification"
+    },
+    "studyboard": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::examboard.examboard"
+    },
+    "gradelevel": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::gradelevel.gradelevel"
+    },
+    "subjects": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::subject.subject",
+      "mappedBy": "student"
+    },
+    "bio": {
+      "type": "text"
+    },
+    "theme": {
+      "type": "string"
+    },
+    "postcode": {
+      "type": "string"
+    },
+    "institution": {
+      "type": "string"
+    }
+  }
+}
