@@ -410,6 +410,7 @@ export interface ApiAiTrainingSessionAiTrainingSession
     draftAndPublish: true;
   };
   attributes: {
+    bestanswers: Attribute.JSON;
     createdAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::ai-training-session.ai-training-session',
@@ -419,11 +420,13 @@ export interface ApiAiTrainingSessionAiTrainingSession
       Attribute.Private;
     description: Attribute.String;
     difficulty: Attribute.Enumeration<['Easy', 'Medium', 'Hard']>;
+    duration: Attribute.Integer;
     feedback: Attribute.Text;
     finalscore: Attribute.Integer;
     marks: Attribute.JSON;
     publishedAt: Attribute.DateTime;
     questions: Attribute.JSON;
+    questions_history: Attribute.JSON;
     questiontypes: Attribute.Relation<
       'api::ai-training-session.ai-training-session',
       'oneToMany',
@@ -483,6 +486,7 @@ export interface ApiAssessmentAssessment extends Schema.CollectionType {
     > &
       Attribute.Private;
     description: Attribute.String;
+    duration: Attribute.Integer;
     examboard: Attribute.Relation<
       'api::assessment.assessment',
       'oneToOne',
@@ -658,6 +662,76 @@ export interface ApiGradelevelGradelevel extends Schema.CollectionType {
   };
 }
 
+export interface ApiMarkingMarking extends Schema.CollectionType {
+  collectionName: 'markings';
+  info: {
+    description: '';
+    displayName: 'Marking';
+    pluralName: 'markings';
+    singularName: 'marking';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    assessment: Attribute.Relation<
+      'api::marking.marking',
+      'oneToOne',
+      'api::assessment.assessment'
+    >;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::marking.marking',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    feedback: Attribute.Text;
+    finalscore: Attribute.Integer;
+    marking: Attribute.JSON;
+    marking_type: Attribute.Enumeration<['AutoMarking', 'MarkingScheme']>;
+    publishedAt: Attribute.DateTime;
+    resources: Attribute.Relation<
+      'api::marking.marking',
+      'oneToMany',
+      'api::resource.resource'
+    >;
+    status: Attribute.Enumeration<
+      [
+        'InProgress',
+        'Completed',
+        'Abandoned',
+        'MarkingInProgress',
+        'MarkingCompleted',
+        'MarkingFailed'
+      ]
+    >;
+    student: Attribute.Relation<
+      'api::marking.marking',
+      'oneToOne',
+      'api::student.student'
+    >;
+    submission_file: Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    submission_json: Attribute.JSON;
+    title: Attribute.String;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<
+      'api::marking.marking',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    workflow_name: Attribute.Relation<
+      'api::marking.marking',
+      'oneToOne',
+      'plugin::workflow.workflow'
+    >;
+  };
+}
+
 export interface ApiQuestiontypeQuestiontype extends Schema.CollectionType {
   collectionName: 'questiontypes';
   info: {
@@ -707,6 +781,12 @@ export interface ApiResourceResource extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
+    analysis: Attribute.JSON;
+    assessment: Attribute.Relation<
+      'api::resource.resource',
+      'oneToOne',
+      'api::assessment.assessment'
+    >;
     content: Attribute.Text;
     createdAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -716,6 +796,7 @@ export interface ApiResourceResource extends Schema.CollectionType {
     > &
       Attribute.Private;
     file: Attribute.Media<'images' | 'files' | 'videos' | 'audios', true>;
+    oci_content: Attribute.JSON;
     publishedAt: Attribute.DateTime;
     resourcetype: Attribute.Relation<
       'api::resource.resource',
@@ -747,6 +828,7 @@ export interface ApiResourceResource extends Schema.CollectionType {
 export interface ApiResourcetypeResourcetype extends Schema.CollectionType {
   collectionName: 'resourcetypes';
   info: {
+    description: '';
     displayName: 'Resourcetype';
     pluralName: 'resourcetypes';
     singularName: 'resourcetype';
@@ -766,6 +848,7 @@ export interface ApiResourcetypeResourcetype extends Schema.CollectionType {
     icon: Attribute.Media<'images' | 'files' | 'videos' | 'audios', true>;
     name: Attribute.String;
     publishedAt: Attribute.DateTime;
+    source: Attribute.Enumeration<['User', 'System']>;
     status: Attribute.Boolean & Attribute.DefaultTo<true>;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<
@@ -774,6 +857,11 @@ export interface ApiResourcetypeResourcetype extends Schema.CollectionType {
       'admin::user'
     > &
       Attribute.Private;
+    workflow_name: Attribute.Relation<
+      'api::resourcetype.resourcetype',
+      'oneToOne',
+      'plugin::workflow.workflow'
+    >;
   };
 }
 
@@ -1790,6 +1878,7 @@ declare module '@strapi/types' {
       'api::examboard.examboard': ApiExamboardExamboard;
       'api::examtype.examtype': ApiExamtypeExamtype;
       'api::gradelevel.gradelevel': ApiGradelevelGradelevel;
+      'api::marking.marking': ApiMarkingMarking;
       'api::questiontype.questiontype': ApiQuestiontypeQuestiontype;
       'api::resource.resource': ApiResourceResource;
       'api::resourcetype.resourcetype': ApiResourcetypeResourcetype;

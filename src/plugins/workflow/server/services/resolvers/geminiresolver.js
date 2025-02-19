@@ -87,9 +87,9 @@ class GeminiResolver {
       }
 
       // Validate response against schema if format is provided
-      if (format && !this.validateSchema(parsedResponse, format)) {
-        throw new Error("GeminiResolver: Response does not conform to the required JSON schema.");
-      }
+      // if (format && !this.validateSchema(parsedResponse, format)) {
+      //   throw new Error("GeminiResolver: Response does not conform to the required JSON schema.");
+      // }
 
       return { geminiResponse: parsedResponse };
     } catch (error) {

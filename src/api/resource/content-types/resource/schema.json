@@ -46,6 +46,17 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::resourcetype.resourcetype"
+    },
+    "analysis": {
+      "type": "json"
+    },
+    "oci_content": {
+      "type": "json"
+    },
+    "assessment": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::assessment.assessment"
     }
   }
 }

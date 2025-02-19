@@ -120,7 +120,7 @@ module.exports = createCoreController('api::student.student', ({ strapi }) => ({
            username,
            email,
            password,
-           role: 5, // Student role ID
+           role: 3, // Student role ID
            confirmed: true,
            blocked: false,
            provider: 'local',

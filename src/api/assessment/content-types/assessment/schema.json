@@ -49,6 +49,9 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::gradelevel.gradelevel"
+    },
+    "duration": {
+      "type": "integer"
     }
   }
 }

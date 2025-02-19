@@ -54,7 +54,7 @@ module.exports = ({ strapi }) => ({
     let options = {};
 
    // Use `input`, `output`, and `options` from `data`, initializing empty objects if missing
-  const { input = {}, output = []} = data;
+  const { input = {}, output = [],skip = []} = data;
 
   workflow.workflow_params.forEach((param) => {
     if (param.source === 'Content') {
@@ -75,9 +75,26 @@ module.exports = ({ strapi }) => ({
     }
   });
 
+// Merge input from workflow_task_params
 
-    // Sort tasks by their order and construct the flow
-    const sortedTasks = workflow.workflow_tasks.sort((a, b) => a.order - b.order); // Sort tasks by order
+  workflow.workflow_tasks.forEach((task) => {
+    task.workflow_task_params.forEach((taskParam) => {
+      Object.keys(taskParam.value).forEach((key) => {
+        if (typeof input[key] === 'object' && typeof taskParam.value[key] === 'object') {
+          input[key] = { ...input[key], ...taskParam.value[key] }; // Deep merge objects
+        } else if (Array.isArray(input[key]) && Array.isArray(taskParam.value[key])) {
+          input[key] = [...input[key], ...taskParam.value[key]]; // Append to array
+        } else {
+          input[key] = taskParam.value[key]; // Assign new value (primitives)
+        }
+      });
+    });
+  });
+
+        // Sort tasks by their order and construct the flow, skipping tasks in `skip[]`
+      const sortedTasks = workflow.workflow_tasks
+      .filter((task) => !skip.includes(task.name)) // Exclude skipped tasks
+      .sort((a, b) => a.order - b.order); // Sort tasks by order
 
     const flow = {
       tasks: sortedTasks.reduce((acc, task) => {
@@ -117,6 +134,20 @@ module.exports = ({ strapi }) => ({
   // Get a single workflow by ID
   async getWorkflowById(id) {
     return await strapi.db.query('plugin::workflow.workflow').findOne({ where: { id } });
+  },
+
+  async getWorkflowByName(name) {
+    try {
+      const workflows = await strapi.db.query('plugin::workflow.workflow').findMany({
+        where: { name },
+        limit: 1,
+      });
+
+      return workflows.length > 0 ? workflows[0] : null;
+    } catch (error) {
+      strapi.log.error(`Error fetching workflow by name: ${name}`, error);
+      return null;
+    }
   },
 
   // Update a workflow by ID

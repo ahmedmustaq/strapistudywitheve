@@ -1,0 +1,80 @@
+{
+  "kind": "collectionType",
+  "collectionName": "markings",
+  "info": {
+    "singularName": "marking",
+    "pluralName": "markings",
+    "displayName": "Marking",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "marking": {
+      "type": "json"
+    },
+    "feedback": {
+      "type": "text"
+    },
+    "resources": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::resource.resource"
+    },
+    "assessment": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::assessment.assessment"
+    },
+    "submission_file": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "submission_json": {
+      "type": "json"
+    },
+    "finalscore": {
+      "type": "integer"
+    },
+    "workflow_name": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::workflow.workflow"
+    },
+    "marking_type": {
+      "type": "enumeration",
+      "enum": [
+        "AutoMarking",
+        "MarkingScheme"
+      ]
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "InProgress",
+        "Completed",
+        "Abandoned",
+        "MarkingInProgress",
+        "MarkingCompleted",
+        "MarkingFailed"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "student": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::student.student"
+    }
+  }
+}

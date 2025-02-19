@@ -5,6 +5,7 @@ class ChatGPTResolver {
    * Executes the ChatGPT API call with JSON schema enforcement.
    * @param {Object} params - An object where all fields are strings (e.g., studentWork, htmlContent, overallPrompt).
    * @param {string} params.apiKey - Your OpenAI API key.
+   * @param {string} params.responseformat - format to return.
    * @param {string} [params.model] - The model to use (default: "gpt-3.5-turbo").
    * @param {Object} context - Shared workflow context, including JSON schema in format.
    * @returns {Promise<Object>} - The API response, formatted strictly as per the provided JSON schema.
@@ -12,7 +13,7 @@ class ChatGPTResolver {
   async exec(params, context) {
     console.log('ChatGPTResolver params:', params);
 
-    const { apiKey, model = 'gpt-3.5-turbo', ...promptFields } = params;
+    const { apiKey, model = 'gpt-4o-mini', responseformat, ...promptFields } = params;
 
     if (!apiKey) {
       throw new Error("Missing 'apiKey' parameter for ChatGPT invocation.");
@@ -28,8 +29,8 @@ class ChatGPTResolver {
       .join("\n\n");
 
     // Enforce JSON schema format if provided
-    if (context && context.format && typeof context.format === 'object') {
-      const jsonSchema = JSON.stringify(context.format, null, 2);
+    if (responseformat && typeof responseformat === 'object') {
+      const jsonSchema = JSON.stringify(responseformat, null, 2);
       finalPrompt += `\n\nPlease provide the response as a valid JSON object strictly adhering to this schema:\n${jsonSchema}`;
     }
 
@@ -37,8 +38,13 @@ class ChatGPTResolver {
 
     const requestBody = JSON.stringify({
       model,
-      messages: [{ role: 'user', content: finalPrompt }],
-    });
+      messages: [
+          {"role": "system", "content": "You are a study assistant that helps students analyze their study resources and generate exam questions.Your response is allways in JSON Format, Your are a GCSE Examiner who marks the work"},
+          { role: 'user', content: finalPrompt }
+      ],
+      response_format: { type: "json_object" }  // Corrected: using an object
+  });
+  
 
     const options = {
       hostname: 'api.openai.com',
@@ -57,31 +63,34 @@ class ChatGPTResolver {
         res.on('data', (chunk) => (data += chunk));
         res.on('end', () => {
           try {
-            const response = JSON.parse(data);
-            if (response.error) {
+            console.log('ChatGPT Response:', data);
+            const chatGPTResponse = JSON.parse(data);
+            if (chatGPTResponse.error) {
               reject(new Error(response.error.message));
             } else {
-              let result = response.choices[0]?.message?.content || '';
+              let result = chatGPTResponse.choices[0]?.message?.content || '';
+              console.log('ChatGPT Response:', result);
+              
 
               // Enforce JSON response if schema was provided
-              if (context && context.format && typeof context.format === 'object') {
-                try {
-                  result = JSON.parse(result); // Convert response to JSON
-                } catch (e) {
-                  reject(new Error('ChatGPT response is not valid JSON. Ensure it matches the schema.'));
-                  return;
-                }
+              // if (responseformat && responseformat && typeof responseformat === 'object') {
+              //   try {
+              //     result = JSON.parse(result); // Convert response to JSON
+              //   } catch (e) {
+              //     reject(new Error('ChatGPT response is not valid JSON. Ensure it matches the schema.'));
+              //     return;
+              //   }
 
-                // Validate response structure against the provided JSON schema
-                if (!this.validateSchema(result, context.format)) {
-                  reject(new Error('ChatGPT response does not conform to the required JSON schema.'));
-                  return;
-                }
-              }
+              //   // Validate response structure against the provided JSON schema
+              //   if (!this.validateSchema(result, responseformat)) {
+              //     reject(new Error('ChatGPT response does not conform to the required JSON schema.'));
+              //     return;
+              //   }
+              // }
 
               resolve({
-                response: result,
-                usage: response.usage,
+                chatGPTResponse: JSON.parse(result),
+                usage: chatGPTResponse.usage,
               });
             }
           } catch (error) {

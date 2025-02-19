@@ -4,7 +4,8 @@
   "info": {
     "singularName": "resourcetype",
     "pluralName": "resourcetypes",
-    "displayName": "Resourcetype"
+    "displayName": "Resourcetype",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -15,14 +16,15 @@
       "type": "string"
     },
     "icon": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
       "allowedTypes": [
         "images",
         "files",
         "videos",
         "audios"
-      ],
-      "type": "media",
-      "multiple": true
+      ]
     },
     "code": {
       "type": "string"
@@ -30,6 +32,18 @@
     "status": {
       "type": "boolean",
       "default": true
+    },
+    "workflow_name": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::workflow.workflow"
+    },
+    "source": {
+      "type": "enumeration",
+      "enum": [
+        "User",
+        "System"
+      ]
     }
   }
 }

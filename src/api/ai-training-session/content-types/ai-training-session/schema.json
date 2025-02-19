@@ -66,6 +66,15 @@
       "relation": "oneToMany",
       "target": "api::questiontype.questiontype",
       "mappedBy": "ai_training_session"
+    },
+    "duration": {
+      "type": "integer"
+    },
+    "bestanswers": {
+      "type": "json"
+    },
+    "questions_history": {
+      "type": "json"
     }
   }
 }

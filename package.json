@@ -11,6 +11,7 @@
     "deploy": "strapi deploy"
   },
   "dependencies": {
+    "@radix-ui/react-focus-guards": "^1.1.1",
     "@strapi/plugin-cloud": "4.25.18",
     "@strapi/plugin-documentation": "4.25.18",
     "@strapi/plugin-i18n": "4.25.18",
@@ -19,12 +20,14 @@
     "@strapi/strapi": "4.25.18",
     "@swc/core": "^1.10.1",
     "better-sqlite3": "8.6.0",
+    "mysql2": "^3.12.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "5.3.4",
     "strapi-content-type-explorer": "^0.2.2",
     "strapi-plugin-import-export-entries": "^1.23.1",
-    "styled-components": "5.3.3"
+    "styled-components": "5.3.3",
+    "yarn": "^1.22.22"
   },
   "author": {
     "name": "A Strapi developer"
