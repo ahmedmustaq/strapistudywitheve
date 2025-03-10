@@ -8,6 +8,12 @@ module.exports = {
       handler: 'marking.markPaper',
       config: { policies: [], middlewares: [] },
     },
+    {
+      method: 'PUT',
+      path: '/markings/:id/genbank',
+      handler: 'marking.generateBank',
+      config: { policies: [], middlewares: [] },
+    },
     
   ],
 };

@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Strapi Debug",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "yarn",
+        "args": ["develop"],
+        "restart": true,
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen",
+        "autoAttachChildProcesses": true,
+        "sourceMaps": true,
+        "trace": "verbose",
+        "env": {
+          "NODE_ENV": "development"
+        }
+      }
+    ]
+  }
+  

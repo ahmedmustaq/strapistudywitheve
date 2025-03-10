@@ -2,7 +2,7 @@ const { JSDOM } = require('jsdom');
 
 class WebResolver {
   async exec(params, context) {
-    console.log('WebExtractorResolver params:', params);
+    strapi.log.debug('WebExtractorResolver params:', params);
 
     const { url } = params;
 
@@ -15,7 +15,7 @@ class WebResolver {
       const textContent = dom.window.document.body.textContent.trim();
       const dataLength = textContent.length; // Get length of extracted text
 
-      console.log(`The extracted text from ${url} has length: ${dataLength} characters`);
+      strapi.log.debug(`The extracted text from ${url} has length: ${dataLength} characters`);
 
       return {
         content: textContent,

@@ -39,7 +39,7 @@
     "questions": {
       "type": "json"
     },
-    "marks": {
+    "marking": {
       "type": "json"
     },
     "finalscore": {
@@ -53,7 +53,9 @@
       "enum": [
         "InProgress",
         "Completed",
-        "Abandoned"
+        "Abandoned",
+        "MarkingInProgress",
+        "MarkingCompleted"
       ]
     },
     "student": {
@@ -61,20 +63,58 @@
       "relation": "oneToOne",
       "target": "api::student.student"
     },
-    "questiontypes": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::questiontype.questiontype",
-      "mappedBy": "ai_training_session"
-    },
     "duration": {
       "type": "integer"
     },
-    "bestanswers": {
+    "noofquestions": {
+      "type": "integer"
+    },
+    "questiontypes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::questiontype.questiontype"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "online",
+        "paper"
+      ]
+    },
+    "submission": {
       "type": "json"
     },
-    "questions_history": {
-      "type": "json"
+    "submission_file": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "studyproject": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::studyproject.studyproject"
+    },
+    "assessment": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::assessment.assessment"
+    },
+    "sessionduration": {
+      "type": "integer"
+    },
+    "generationtype": {
+      "type": "enumeration",
+      "enum": [
+        "AI",
+        "Revision"
+      ],
+      "default": "AI"
     }
   }
 }

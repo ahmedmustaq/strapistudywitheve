@@ -1,0 +1,97 @@
+{
+  "kind": "collectionType",
+  "collectionName": "questionbanks",
+  "info": {
+    "singularName": "questionbank",
+    "pluralName": "questionbanks",
+    "displayName": "Questionbank",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "resources": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::resource.resource"
+    },
+    "student": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::student.student"
+    },
+    "studyproject": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::studyproject.studyproject"
+    },
+    "assessment": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::assessment.assessment"
+    },
+    "topic": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::topic.topic"
+    },
+    "question": {
+      "type": "text"
+    },
+    "answer": {
+      "type": "text"
+    },
+    "best_answer": {
+      "type": "text"
+    },
+    "max_marks": {
+      "type": "integer"
+    },
+    "marks_awarded": {
+      "type": "integer"
+    },
+    "difficulty": {
+      "type": "enumeration",
+      "enum": [
+        "Hard",
+        "Medium",
+        "Easy"
+      ]
+    },
+    "sessiontype": {
+      "type": "enumeration",
+      "enum": [
+        "AITraining",
+        "Assessment"
+      ]
+    },
+    "questiontype": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "sessionid": {
+      "type": "integer"
+    },
+    "topicName": {
+      "type": "string"
+    },
+    "graded": {
+      "type": "enumeration",
+      "enum": [
+        "correct",
+        "partial",
+        "wrong"
+      ]
+    },
+    "options": {
+      "type": "json"
+    },
+    "marking_criteria": {
+      "type": "json"
+    }
+  }
+}

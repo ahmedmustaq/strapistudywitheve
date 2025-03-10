@@ -1,0 +1,26 @@
+{
+  "kind": "singleType",
+  "collectionName": "analytics",
+  "info": {
+    "singularName": "analytic",
+    "pluralName": "analytics",
+    "displayName": "Analytic",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "student": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::student.student"
+    },
+    "studyproject": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::studyproject.studyproject"
+    }
+  }
+}

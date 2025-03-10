@@ -14,7 +14,7 @@ class PrintResolver {
       const stop = context.counter >= context.limit; // Stop when limit is reached
 
       setTimeout(() => {
-        console.log(`Print Task: ${message} | Counter: ${context.counter}`);
+        strapi.log.debug(`Print Task: ${message} | Counter: ${context.counter}`);
         resolve(stop ? {} : { continue: true }); // Stop if limit reached
       }, 1000);
     });

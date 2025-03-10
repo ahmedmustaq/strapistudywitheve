@@ -4,7 +4,8 @@
   "info": {
     "singularName": "questiontype",
     "pluralName": "questiontypes",
-    "displayName": "Questiontype"
+    "displayName": "Questiontype",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -20,11 +21,14 @@
     "description": {
       "type": "string"
     },
-    "ai_training_session": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::ai-training-session.ai-training-session",
-      "inversedBy": "questiontypes"
+    "status": {
+      "type": "boolean",
+      "default": true,
+      "required": true
+    },
+    "training": {
+      "type": "boolean",
+      "default": true
     }
   }
 }

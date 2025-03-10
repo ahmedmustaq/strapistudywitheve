@@ -11,7 +11,7 @@ class ChatGPTResolver {
    * @returns {Promise<Object>} - The API response, formatted strictly as per the provided JSON schema.
    */
   async exec(params, context) {
-    console.log('ChatGPTResolver params:', params);
+    strapi.log.debug('ChatGPTResolver params:', params);
 
     const { apiKey, model = 'gpt-4o-mini', responseformat, ...promptFields } = params;
 
@@ -34,7 +34,7 @@ class ChatGPTResolver {
       finalPrompt += `\n\nPlease provide the response as a valid JSON object strictly adhering to this schema:\n${jsonSchema}`;
     }
 
-    console.log("Final Prompt Sent to ChatGPT:", finalPrompt);
+    strapi.log.debug("Final Prompt Sent to ChatGPT:", finalPrompt);
 
     const requestBody = JSON.stringify({
       model,
@@ -63,13 +63,13 @@ class ChatGPTResolver {
         res.on('data', (chunk) => (data += chunk));
         res.on('end', () => {
           try {
-            console.log('ChatGPT Response:', data);
+            strapi.log.debug('ChatGPT Response:', data);
             const chatGPTResponse = JSON.parse(data);
             if (chatGPTResponse.error) {
               reject(new Error(response.error.message));
             } else {
               let result = chatGPTResponse.choices[0]?.message?.content || '';
-              console.log('ChatGPT Response:', result);
+              strapi.log.debug('ChatGPT Response:', result);
               
 
               // Enforce JSON response if schema was provided

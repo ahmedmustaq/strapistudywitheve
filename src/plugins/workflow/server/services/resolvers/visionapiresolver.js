@@ -16,7 +16,7 @@ class VisionAPIResolver {
    * @returns {Promise<Object>} - The Vision API response.
    */
   async exec(params) {
-    console.log('Executing VisionAPIResolver with params:', params);
+    strapi.log.debug('Executing VisionAPIResolver with params:', params);
 
     const { filePath, type, apiKey } = params;
 
@@ -48,7 +48,7 @@ class VisionAPIResolver {
    * @returns {Promise<Object>} - The Vision API response.
    */
   async processImage(filePath, type, apiKey) {
-    console.log(`Processing image: ${filePath}`);
+    strapi.log.debug(`Processing image: ${filePath}`);
 
     const isRemote = filePath.startsWith('http://') || filePath.startsWith('https://');
     const endpoint = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
@@ -111,7 +111,7 @@ class VisionAPIResolver {
    * @returns {Promise<Object>} - The combined Vision API response.
    */
   async processPdf(filePath, type, apiKey) {
-    console.log(`Processing PDF: ${filePath}`);
+    strapi.log.debug(`Processing PDF: ${filePath}`);
 
     const pdfExtract = new PDFExtract();
     const options = {};

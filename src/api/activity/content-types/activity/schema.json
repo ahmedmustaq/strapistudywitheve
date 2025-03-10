@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "activities",
+  "info": {
+    "singularName": "activity",
+    "pluralName": "activities",
+    "displayName": "Activity",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "progress": {
+      "type": "integer"
+    },
+    "entity": {
+      "type": "enumeration",
+      "enum": [
+        "AITraining",
+        "Assessment"
+      ]
+    },
+    "entityid": {
+      "type": "integer"
+    },
+    "studyproject": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::studyproject.studyproject"
+    },
+    "topic": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::topic.topic"
+    },
+    "student": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::student.student"
+    }
+  }
+}

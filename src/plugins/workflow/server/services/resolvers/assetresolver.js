@@ -34,7 +34,7 @@ class AssetResolver {
           throw new Error("AssetResolver: Strapi instance is not available.");
         }
 
-        console.log(`Fetching asset details from Strapi for asset IDs: ${assets.map(a => a.id).join(", ")}`);
+        strapi.log.debug(`Fetching asset details from Strapi for asset IDs: ${assets.map(a => a.id).join(", ")}`);
 
         for (const asset of assets) {
           try {
@@ -55,7 +55,7 @@ class AssetResolver {
 
             const mimeType = file.mime || mime.lookup(filePath) || "application/octet-stream";
 
-            console.log(`Resolved asset from Strapi: filePath=${filePath}, mimeType=${mimeType}, processor=${asset.processor}`);
+            strapi.log.debug(`Resolved asset from Strapi: filePath=${filePath}, mimeType=${mimeType}, processor=${asset.processor}`);
             files.push({ filePath, mimeType, processor: asset.processor });
           } catch (error) {
             console.error(`AssetResolver: Failed to resolve assetId ${asset.id} - ${error.message}`);
@@ -65,7 +65,7 @@ class AssetResolver {
 
       // Process asset URLs
       if (assetUrls.length > 0) {
-        console.log(`Processing asset URLs: ${assetUrls.map(a => a.url).join(", ")}`);
+        strapi.log.debug(`Processing asset URLs: ${assetUrls.map(a => a.url).join(", ")}`);
 
         for (const asset of assetUrls) {
           try {
@@ -76,7 +76,7 @@ class AssetResolver {
 
             if (!extension) {
               // If no extension, assume it's an HTML page and generate a PDF
-              console.log(`Generating PDF for HTML page: ${url}`);
+              strapi.log.debug(`Generating PDF for HTML page: ${url}`);
               const response = await axios.get(url);
               const html = response.data;
 
@@ -89,7 +89,7 @@ class AssetResolver {
                     console.error(`AssetResolver: Failed to generate PDF from ${url} - ${err.message}`);
                     reject(err);
                   } else {
-                    console.log(`Generated PDF: ${res.filename}, processor=${processor}`);
+                    strapi.log.debug(`Generated PDF: ${res.filename}, processor=${processor}`);
                     files.push({ filePath: res.filename, mimeType: "application/pdf", processor });
                     resolve();
                   }
@@ -97,7 +97,7 @@ class AssetResolver {
               });
             } else {
               // If it has an extension, download as a file
-              console.log(`Downloading asset from: ${url}`);
+              strapi.log.debug(`Downloading asset from: ${url}`);
               const tempFileName = `file-${Date.now()}${extension}`;
               filePath = path.join(os.tmpdir(), tempFileName);
 
@@ -106,7 +106,7 @@ class AssetResolver {
 
               mimeType = mime.lookup(filePath) || "application/octet-stream";
 
-              console.log(`Downloaded asset: filePath=${filePath}, mimeType=${mimeType}, processor=${processor}`);
+              strapi.log.debug(`Downloaded asset: filePath=${filePath}, mimeType=${mimeType}, processor=${processor}`);
               files.push({ filePath, mimeType, processor });
             }
           } catch (error) {

@@ -22,7 +22,7 @@ class GeminiResolver {
       throw new Error("GeminiResolver: 'apiKey' parameter is mandatory.");
     }
 
-    console.log("Executing GeminiResolver with params:", { prompt, files, format });
+    strapi.log.debug("Executing GeminiResolver with params:", { prompt, files, format });
 
     // Initialize the Google Gemini API client
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -43,7 +43,7 @@ class GeminiResolver {
         }
 
         try {
-          console.log(`Processing file with Gemini: ${filePath}`);
+          strapi.log.debug(`Processing file with Gemini: ${filePath}`);
           const fileData = fs.readFileSync(filePath);
           requestParts.push({
             inlineData: {
@@ -51,14 +51,14 @@ class GeminiResolver {
               mimeType: mimeType,
             },
           });
-          console.log("File successfully converted to Base64.");
+          strapi.log.debug("File successfully converted to Base64.");
         } catch (error) {
           console.error(`GeminiResolver: Failed to process file ${filePath}:`, error.message);
           throw new Error(`GeminiResolver: Failed to process file ${filePath}.`);
         }
       }
     } else {
-      console.log("No files with processor 'gemini' found. Proceeding with prompt only.");
+      strapi.log.debug("No files with processor 'gemini' found. Proceeding with prompt only.");
     }
 
     // If format is provided, instruct Gemini to return JSON matching the schema
@@ -73,7 +73,7 @@ class GeminiResolver {
       // Extract text content from Gemini response
       const textResponse = result?.response?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-      console.log("Gemini API raw response:", textResponse);
+      strapi.log.debug("Gemini API raw response:", textResponse);
 
       // Remove possible markdown code block (e.g., ```json\n ... \n```)
       const cleanText = textResponse.replace(/^```json\n|\n```$/g, "").trim();

@@ -10,7 +10,7 @@ class PDFResolver {
    * @returns {Promise<Object>} - Extracted text content and metadata.
    */
   async exec(params) {
-    console.log('Executing PDFResolver with params:', params);
+    strapi.log.debug('Executing PDFResolver with params:', params);
 
     const { files = [] } = params;
 
@@ -24,7 +24,7 @@ class PDFResolver {
     );
 
     if (pdfFiles.length === 0) {
-      console.log("PDFResolver: No valid PDF files found with processor 'pdfProcessor'.");
+      strapi.log.debug("PDFResolver: No valid PDF files found with processor 'pdfProcessor'.");
       return { content: "", meta: { pageCount: 0, processedFiles: [] } };
     }
 
@@ -50,13 +50,13 @@ class PDFResolver {
       }
 
       try {
-        console.log(`Processing PDF file: ${filePath}`);
+        strapi.log.debug(`Processing PDF file: ${filePath}`);
         const data = await pdfExtract.extract(filePath, options);
-        console.log(`Data: ${data}`);
+        strapi.log.debug(`Data: ${data}`);
         const extractedText = data.pages
           .map((page) => page.content.map((item) => item.str).join(' '))
           .join('\n');
-          console.log(`extractedText: ${extractedText}`);
+          strapi.log.debug(`extractedText: ${extractedText}`);
         allText += extractedText + "\n\n"; // Append extracted text with spacing
         totalPages += data.pages.length;
         processedFiles.push(filePath);

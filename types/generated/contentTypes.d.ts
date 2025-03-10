@@ -397,6 +397,55 @@ export interface ApiAcademicQualificationAcademicQualification
   };
 }
 
+export interface ApiActivityActivity extends Schema.CollectionType {
+  collectionName: 'activities';
+  info: {
+    description: '';
+    displayName: 'Activity';
+    pluralName: 'activities';
+    singularName: 'activity';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::activity.activity',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    description: Attribute.String;
+    entity: Attribute.Enumeration<['AITraining', 'Assessment']>;
+    entityid: Attribute.Integer;
+    name: Attribute.String;
+    progress: Attribute.Integer;
+    student: Attribute.Relation<
+      'api::activity.activity',
+      'oneToOne',
+      'api::student.student'
+    >;
+    studyproject: Attribute.Relation<
+      'api::activity.activity',
+      'oneToOne',
+      'api::studyproject.studyproject'
+    >;
+    topic: Attribute.Relation<
+      'api::activity.activity',
+      'oneToOne',
+      'api::topic.topic'
+    >;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<
+      'api::activity.activity',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiAiTrainingSessionAiTrainingSession
   extends Schema.CollectionType {
   collectionName: 'ai_training_sessions';
@@ -410,7 +459,11 @@ export interface ApiAiTrainingSessionAiTrainingSession
     draftAndPublish: true;
   };
   attributes: {
-    bestanswers: Attribute.JSON;
+    assessment: Attribute.Relation<
+      'api::ai-training-session.ai-training-session',
+      'oneToOne',
+      'api::assessment.assessment'
+    >;
     createdAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::ai-training-session.ai-training-session',
@@ -423,10 +476,12 @@ export interface ApiAiTrainingSessionAiTrainingSession
     duration: Attribute.Integer;
     feedback: Attribute.Text;
     finalscore: Attribute.Integer;
-    marks: Attribute.JSON;
+    generationtype: Attribute.Enumeration<['AI', 'Revision']> &
+      Attribute.DefaultTo<'AI'>;
+    marking: Attribute.JSON;
+    noofquestions: Attribute.Integer;
     publishedAt: Attribute.DateTime;
     questions: Attribute.JSON;
-    questions_history: Attribute.JSON;
     questiontypes: Attribute.Relation<
       'api::ai-training-session.ai-training-session',
       'oneToMany',
@@ -437,21 +492,78 @@ export interface ApiAiTrainingSessionAiTrainingSession
       'oneToMany',
       'api::resource.resource'
     >;
-    status: Attribute.Enumeration<['InProgress', 'Completed', 'Abandoned']>;
+    sessionduration: Attribute.Integer;
+    status: Attribute.Enumeration<
+      [
+        'InProgress',
+        'Completed',
+        'Abandoned',
+        'MarkingInProgress',
+        'MarkingCompleted'
+      ]
+    >;
     student: Attribute.Relation<
       'api::ai-training-session.ai-training-session',
       'oneToOne',
       'api::student.student'
     >;
+    studyproject: Attribute.Relation<
+      'api::ai-training-session.ai-training-session',
+      'oneToOne',
+      'api::studyproject.studyproject'
+    >;
+    submission: Attribute.JSON;
+    submission_file: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     title: Attribute.String;
     topic: Attribute.Relation<
       'api::ai-training-session.ai-training-session',
       'oneToOne',
       'api::topic.topic'
     >;
+    type: Attribute.Enumeration<['online', 'paper']>;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<
       'api::ai-training-session.ai-training-session',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiAnalyticAnalytic extends Schema.SingleType {
+  collectionName: 'analytics';
+  info: {
+    description: '';
+    displayName: 'Analytic';
+    pluralName: 'analytics';
+    singularName: 'analytic';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::analytic.analytic',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    publishedAt: Attribute.DateTime;
+    student: Attribute.Relation<
+      'api::analytic.analytic',
+      'oneToOne',
+      'api::student.student'
+    >;
+    studyproject: Attribute.Relation<
+      'api::analytic.analytic',
+      'oneToOne',
+      'api::studyproject.studyproject'
+    >;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<
+      'api::analytic.analytic',
       'oneToOne',
       'admin::user'
     > &
@@ -499,9 +611,9 @@ export interface ApiAssessmentAssessment extends Schema.CollectionType {
     >;
     maxScore: Attribute.Integer;
     publishedAt: Attribute.DateTime;
-    subjects: Attribute.Relation<
+    subject: Attribute.Relation<
       'api::assessment.assessment',
-      'oneToMany',
+      'oneToOne',
       'api::subject.subject'
     >;
     topics: Attribute.Relation<
@@ -509,6 +621,7 @@ export interface ApiAssessmentAssessment extends Schema.CollectionType {
       'oneToMany',
       'api::topic.topic'
     >;
+    topictree: Attribute.JSON;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<
       'api::assessment.assessment',
@@ -686,6 +799,7 @@ export interface ApiMarkingMarking extends Schema.CollectionType {
       'admin::user'
     > &
       Attribute.Private;
+    duration: Attribute.Integer;
     feedback: Attribute.Text;
     finalscore: Attribute.Integer;
     marking: Attribute.JSON;
@@ -696,6 +810,7 @@ export interface ApiMarkingMarking extends Schema.CollectionType {
       'oneToMany',
       'api::resource.resource'
     >;
+    sessionduration: Attribute.Integer;
     status: Attribute.Enumeration<
       [
         'InProgress',
@@ -710,6 +825,11 @@ export interface ApiMarkingMarking extends Schema.CollectionType {
       'api::marking.marking',
       'oneToOne',
       'api::student.student'
+    >;
+    studyproject: Attribute.Relation<
+      'api::marking.marking',
+      'oneToOne',
+      'api::studyproject.studyproject'
     >;
     submission_file: Attribute.Media<
       'images' | 'files' | 'videos' | 'audios',
@@ -732,9 +852,78 @@ export interface ApiMarkingMarking extends Schema.CollectionType {
   };
 }
 
+export interface ApiQuestionbankQuestionbank extends Schema.CollectionType {
+  collectionName: 'questionbanks';
+  info: {
+    description: '';
+    displayName: 'Questionbank';
+    pluralName: 'questionbanks';
+    singularName: 'questionbank';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    answer: Attribute.Text;
+    assessment: Attribute.Relation<
+      'api::questionbank.questionbank',
+      'oneToOne',
+      'api::assessment.assessment'
+    >;
+    best_answer: Attribute.Text;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::questionbank.questionbank',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    difficulty: Attribute.Enumeration<['Hard', 'Medium', 'Easy']>;
+    graded: Attribute.Enumeration<['correct', 'partial', 'wrong']>;
+    marking_criteria: Attribute.JSON;
+    marks_awarded: Attribute.Integer;
+    max_marks: Attribute.Integer;
+    options: Attribute.JSON;
+    question: Attribute.Text;
+    questiontype: Attribute.String;
+    resources: Attribute.Relation<
+      'api::questionbank.questionbank',
+      'oneToMany',
+      'api::resource.resource'
+    >;
+    sessionid: Attribute.Integer;
+    sessiontype: Attribute.Enumeration<['AITraining', 'Assessment']>;
+    student: Attribute.Relation<
+      'api::questionbank.questionbank',
+      'oneToOne',
+      'api::student.student'
+    >;
+    studyproject: Attribute.Relation<
+      'api::questionbank.questionbank',
+      'oneToOne',
+      'api::studyproject.studyproject'
+    >;
+    subject: Attribute.String;
+    topic: Attribute.Relation<
+      'api::questionbank.questionbank',
+      'oneToOne',
+      'api::topic.topic'
+    >;
+    topicName: Attribute.String;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<
+      'api::questionbank.questionbank',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiQuestiontypeQuestiontype extends Schema.CollectionType {
   collectionName: 'questiontypes';
   info: {
+    description: '';
     displayName: 'Questiontype';
     pluralName: 'questiontypes';
     singularName: 'questiontype';
@@ -743,11 +932,6 @@ export interface ApiQuestiontypeQuestiontype extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
-    ai_training_session: Attribute.Relation<
-      'api::questiontype.questiontype',
-      'manyToOne',
-      'api::ai-training-session.ai-training-session'
-    >;
     code: Attribute.String;
     createdAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -759,6 +943,8 @@ export interface ApiQuestiontypeQuestiontype extends Schema.CollectionType {
     description: Attribute.String;
     name: Attribute.String;
     publishedAt: Attribute.DateTime;
+    status: Attribute.Boolean & Attribute.Required & Attribute.DefaultTo<true>;
+    training: Attribute.Boolean & Attribute.DefaultTo<true>;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<
       'api::questiontype.questiontype',
@@ -807,6 +993,11 @@ export interface ApiResourceResource extends Schema.CollectionType {
       'api::resource.resource',
       'oneToOne',
       'api::student.student'
+    >;
+    studyprojects: Attribute.Relation<
+      'api::resource.resource',
+      'oneToMany',
+      'api::studyproject.studyproject'
     >;
     title: Attribute.String;
     topic: Attribute.Relation<
@@ -1086,6 +1277,7 @@ export interface ApiTopicTopic extends Schema.CollectionType {
       'api::gradelevel.gradelevel'
     >;
     group: Attribute.String;
+    maxquestionspossible: Attribute.Integer;
     parent: Attribute.Relation<
       'api::topic.topic',
       'oneToOne',
@@ -1873,12 +2065,15 @@ declare module '@strapi/types' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::academic-qualification.academic-qualification': ApiAcademicQualificationAcademicQualification;
+      'api::activity.activity': ApiActivityActivity;
       'api::ai-training-session.ai-training-session': ApiAiTrainingSessionAiTrainingSession;
+      'api::analytic.analytic': ApiAnalyticAnalytic;
       'api::assessment.assessment': ApiAssessmentAssessment;
       'api::examboard.examboard': ApiExamboardExamboard;
       'api::examtype.examtype': ApiExamtypeExamtype;
       'api::gradelevel.gradelevel': ApiGradelevelGradelevel;
       'api::marking.marking': ApiMarkingMarking;
+      'api::questionbank.questionbank': ApiQuestionbankQuestionbank;
       'api::questiontype.questiontype': ApiQuestiontypeQuestiontype;
       'api::resource.resource': ApiResourceResource;
       'api::resourcetype.resourcetype': ApiResourcetypeResourcetype;

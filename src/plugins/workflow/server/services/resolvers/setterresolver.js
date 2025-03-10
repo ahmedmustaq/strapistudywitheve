@@ -7,7 +7,7 @@ class SetterResolver {
    */
   exec(params, context) {
     return new Promise((resolve) => {
-      console.log("Setter Task: Received Parameters =>", JSON.stringify(params, null, 2));
+      strapi.log.debug("Setter Task: Received Parameters =>", JSON.stringify(params, null, 2));
       resolve(params); // Return the same parameters
     });
   }

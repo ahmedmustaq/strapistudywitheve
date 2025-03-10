@@ -75,6 +75,17 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::student.student"
+    },
+    "studyproject": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::studyproject.studyproject"
+    },
+    "duration": {
+      "type": "integer"
+    },
+    "sessionduration": {
+      "type": "integer"
     }
   }
 }

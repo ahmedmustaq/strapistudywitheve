@@ -12,6 +12,10 @@ module.exports = ({ env }) => ({
   'workflow': {
     enabled: true,
     resolve: './src/plugins/workflow'
-  }
+  },
+  'custom-function': {
+    enabled: true,
+    resolve: './src/plugins/custom-function'
+  },
   //...
 });

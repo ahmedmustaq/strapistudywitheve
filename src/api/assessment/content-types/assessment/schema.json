@@ -35,9 +35,9 @@
     "assessment_criteria": {
       "type": "json"
     },
-    "subjects": {
+    "subject": {
       "type": "relation",
-      "relation": "oneToMany",
+      "relation": "oneToOne",
       "target": "api::subject.subject"
     },
     "topics": {
@@ -52,6 +52,9 @@
     },
     "duration": {
       "type": "integer"
+    },
+    "topictree": {
+      "type": "json"
     }
   }
 }
