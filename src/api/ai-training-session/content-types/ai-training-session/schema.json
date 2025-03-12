@@ -115,6 +115,9 @@
         "Revision"
       ],
       "default": "AI"
+    },
+    "focusarea": {
+      "type": "string"
     }
   }
 }

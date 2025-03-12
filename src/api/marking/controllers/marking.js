@@ -13,7 +13,7 @@ module.exports = createCoreController('api::marking.marking', ({ strapi }) => ({
       const { id } = ctx.params;
 
       const marking = await strapi.entityService.findOne('api::marking.marking', id, {
-        populate: ['submission_file', 'resources.file', 'resources.resourcetype.workflow_name'],
+        populate: ['submission_file', 'assessment.topictree', 'resources.file', 'resources.resourcetype.workflow_name'],
       });
 
       if (!marking) {
@@ -63,12 +63,58 @@ module.exports = createCoreController('api::marking.marking', ({ strapi }) => ({
 
   async processAnalysis(ctx, marking, workflowId, markingSchemeResource) {
     try {
-      // Define the base GPT prompt
-      let gptPrompt = "You are an expert examiner. Your task is to compare a provided student's work with a marking scheme and grade it according to the scheme. The student’s work consists of multiple pages, and each page may contain different sections. Instructions: 1. Extract Sections & Numbering - Identify distinct sections in the student's work. - Assign the same section number to each based on its position in the document. 2. Compare with Marking Scheme - For each section, locate the corresponding criteria in the marking scheme. - Check if the student’s response meets the marking scheme's requirements. - Award marks accordingly. 3. Provide Detailed Feedback - Clearly indicate marks awarded per section. - Include justifications for awarded or deducted marks. - Offer constructive feedback where improvements can be made.";
 
-      // Adjust the prompt if no marking scheme is provided
+      // 1) Define the base GPT prompt
+      let gptPrompt = `
+            You are an expert examiner. Your task is to compare a provided student's work with a marking scheme and grade it according to the scheme. 
+            The student’s work consists of multiple pages, and each page may contain different sections.
+
+            Instructions:
+            1. Extract Sections & Numbering
+              - Identify distinct sections in the student's work.
+              - Assign the same section number to each based on its position in the document.
+            2. Compare with Marking Scheme
+              - For each section, locate the corresponding criteria in the marking scheme.
+              - Check if the student’s response meets the marking scheme's requirements.
+              - Award marks accordingly.
+            3. Provide Detailed Feedback
+              - Clearly indicate marks awarded per section.
+              - Include justifications for awarded or deducted marks.
+              - Offer constructive feedback where improvements can be made.
+            `;
+
+      // 2) Adjust the prompt if no marking scheme is provided
       if (!markingSchemeResource) {
-        gptPrompt = "You are an expert examiner. Your task is to evaluate a student's work and generate a marking scheme based on the content. The student’s work consists of multiple pages, and each page may contain different sections. Instructions: 1. Extract Sections & Numbering - Identify distinct sections in the student's work. - Assign the same section number to each based on its position in the document. 2. Generate Marking Scheme - Create a marking scheme for each section based on the content. - Define criteria for awarding marks. 3. Perform Auto-Marking - Award marks based on the generated marking scheme. 4. Provide Detailed Feedback - Clearly indicate marks awarded per section. - Include justifications for awarded or deducted marks. - Offer constructive feedback where improvements can be made.";
+        gptPrompt = `
+            You are an expert examiner. Your task is to evaluate a student's work and generate a marking scheme based on the content. 
+            The student’s work consists of multiple pages, and each page may contain different sections.
+
+            Instructions:
+            1. Extract Sections & Numbering
+              - Identify distinct sections in the student's work.
+              - Assign the same section number to each based on its position in the document.
+            2. Generate Marking Scheme
+              - Create a marking scheme for each section based on the content.
+              - Define criteria for awarding marks.
+            3. Perform Auto-Marking
+              - Award marks based on the generated marking scheme.
+            4. Provide Detailed Feedback
+              - Clearly indicate marks awarded per section.
+              - Include justifications for awarded or deducted marks.
+              - Offer constructive feedback where improvements can be made.
+            `;
+      }
+
+      // 3) If topictree exists, append additional instructions to gptPrompt
+      if (marking?.assessment?.topictree?.length) {
+        gptPrompt += `
+
+            Additional Instruction:
+            "Match the questions under this Topic Hierarchy only:
+            ${JSON.stringify(marking.assessment.topictree, null, 2)}
+
+            Then match each question to the most relevant topic(s) from the above tree."
+            `;
       }
 
       const outputFields = ["geminiResponse"];

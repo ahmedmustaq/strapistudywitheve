@@ -66,7 +66,7 @@ module.exports = createCoreController('api::ai-training-session.ai-training-sess
 
       // Retrieve the AI training session
       const session = await strapi.entityService.findOne('api::ai-training-session.ai-training-session', id, {
-        populate: ['resources.file', 'topic.spec', 'questiontypes','student'], // Fetch questiontypes
+        populate: ['resources.file', 'topic.spec', 'questiontypes','student','assessment.topictree'], // Fetch questiontypes
       });
 
       if (!session) {
@@ -104,6 +104,7 @@ module.exports = createCoreController('api::ai-training-session.ai-training-sess
 
       // Include question count and difficulty
       const questionCount = session.noofquestions || 5; // Default to 5 if not specified
+      const focusarea = session.focusarea || ''; // student prompt
       const difficulty = session.difficulty || "Hard"; // Default to "Hard" if not specified
 
       // Extract question types using `code` from `questiontypes` relation
@@ -123,16 +124,16 @@ module.exports = createCoreController('api::ai-training-session.ai-training-sess
             fields: ['question'],
           });
         }
+        const existingQuestionsText = existingQuestions.map(q => q.question).join("\n");
 
       // Construct GPT instruction
-      const gptPrompt = `
-        Generate ${questionCount} GCSE-style questions based on the provided content.
-        Ensure the questions align with the given topic number mentioned in the specification and have the difficulty level ${difficulty}.
-        Question Types: ${questionTypes.join(", ")}
-        Structure them appropriately with a mix of formats.
-         Do not repeat the following questions:
-        ${existingQuestions.map(q => q.question).join("\n")}
-      `;
+      const gptPrompt = `Generate ${questionCount} questions with the following details:
+      ` +
+            `Difficulty Level: ${difficulty}\n` +
+            `Question Types: ${session.questiontypes.map(qt => qt.name).join(", ")}\n` +
+            `Match the questions under this Topic Hierarchy only: ${JSON.stringify(session.assessment.topictree, null, 2)}\n\n` +
+            `Focus only on this : ${focusarea}\n` +
+            `Avoid repeating these questions:\n${existingQuestionsText}`;
 
       // Get workflow service
       const workflowService = strapi.plugin('workflow')?.service('workflowService');

@@ -1,5 +1,6 @@
 import React from 'react';
 import LoadTopicButton from './LoadTopicButton';
+import UploadTopicsButton from './UploadTopicButton';
 
 const CustomEditView = (props) => {
   //  console.log(props);
@@ -11,6 +12,7 @@ const CustomEditView = (props) => {
     {props.children}
       {/* Render the LoadTopic button only for the assessment entity */}
       {isAssessment && <LoadTopicButton />}
+      {isAssessment && <UploadTopicsButton />}
     </div>
   );
 };
