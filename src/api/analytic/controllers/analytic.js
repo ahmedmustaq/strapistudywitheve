@@ -27,7 +27,10 @@ module.exports = createCoreController('api::analytic.analytic', ({ strapi }) => 
             // Fetch data for the current period
             const currentQuestionbanks = await fetchDataForPeriod(studentId, startDate, currentDate,projectId);
             if (!currentQuestionbanks?.length) {
-                return ctx.notFound('No data found for the given student and project');
+                return ctx.send({
+                    data: [],
+                    message: 'No data found for the given student and project',
+                  });
             }
 
             // Fetch data for the previous period
@@ -101,8 +104,13 @@ module.exports = createCoreController('api::analytic.analytic', ({ strapi }) => 
 
             // Fetch data for the current period
             const currentQuestionbanks = await fetchDataForPeriod(studentId, startDate, currentDate);
+
+        
             if (!currentQuestionbanks?.length) {
-                return ctx.notFound('No data found for the given student and project');
+                return ctx.send({
+                    data: [],
+                    message: 'No data found for the given student and project',
+                  });
             }
 
             // Fetch data for the previous period
