@@ -44,6 +44,10 @@
         "User",
         "System"
       ]
+    },
+    "assessmentonly": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

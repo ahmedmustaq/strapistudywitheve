@@ -97,10 +97,10 @@ module.exports = createCoreController('api::ai-training-session.ai-training-sess
         return ctx.badRequest('No valid resource content or files found.');
       }
 
-      // // Include topic if available
-      // if (session.topic) {
-      //   combinedContent += `\nTopic: ${session.topic.title}\n\n`;
-      // }
+      // Include topic if available
+      if (session.topic) {
+        combinedContent += `\nTopic: ${session.topic.title}\n\n`;
+      }
 
       // Include question count and difficulty
       const questionCount = session.noofquestions || 5; // Default to 5 if not specified
@@ -131,8 +131,8 @@ module.exports = createCoreController('api::ai-training-session.ai-training-sess
       ` +
             `Difficulty Level: ${difficulty}\n` +
             `Question Types: ${session.questiontypes.map(qt => qt.name).join(", ")}\n` +
-            `Match the questions under this Topic Hierarchy only: ${JSON.stringify(session.assessment.topictree, null, 2)}\n\n` +
             `Focus only on this : ${focusarea}\n` +
+            `While generating the question based on content, make sure it matches one of these topics: ${JSON.stringify(session.assessment.topictree, null, 2)}\n\n` +
             `Avoid repeating these questions:\n${existingQuestionsText}`;
 
       // Get workflow service

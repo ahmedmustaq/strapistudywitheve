@@ -10,9 +10,9 @@ class AssetResolver {
    * Resolves multiple assets from Strapi (via assets.id) and downloads multiple remote files (via assetUrls.url).
    * If an assetUrl is an HTML page (determined by missing extension), it generates a PDF.
    * @param {Object} params - Parameters for the resolver.
-   * @param {Array<{id: number, processor: string}>} [params.assets] - Array of assets from Strapi.
+   * @param {Array<{id: number, processor: string,type: string}>} [params.assets] - Array of assets from Strapi.
    * @param {Array<{url: string, processor: string}>} [params.assetUrls] - Array of remote assets.
-   * @returns {Promise<{files: Array<{filePath: string, mimeType: string, processor: string}>>}>} - Returns an array of file objects.
+   * @returns {Promise<{files: Array<{filePath: string, mimeType: string, type: string,processor: string}>>}>} - Returns an array of file objects.
    */
   async exec(params, context) {
     const { assets = [], assetUrls = [] } = params;
@@ -56,7 +56,7 @@ class AssetResolver {
             const mimeType = file.mime || mime.lookup(filePath) || "application/octet-stream";
 
             strapi.log.debug(`Resolved asset from Strapi: filePath=${filePath}, mimeType=${mimeType}, processor=${asset.processor}`);
-            files.push({ filePath, mimeType, processor: asset.processor });
+            files.push({ filePath, mimeType, processor: asset.processor,type: asset.type });
           } catch (error) {
             console.error(`AssetResolver: Failed to resolve assetId ${asset.id} - ${error.message}`);
           }

@@ -1,9 +1,10 @@
 'use strict';
 
+const crypto = require('crypto');
 const { createCoreController } = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::student.student', ({ strapi }) => ({
- 
+
   async findByUserId(ctx) {
     try {
       const { userId } = ctx.params;
@@ -42,7 +43,7 @@ module.exports = createCoreController('api::student.student', ({ strapi }) => ({
           gradelevel: {
             fields: ['id', 'gradeName'],
           },
-          
+
         },
       });
 
@@ -90,247 +91,271 @@ module.exports = createCoreController('api::student.student', ({ strapi }) => ({
     }
   },
 
-   // ✅ Register Student with JSON + Avatar Upload
-   async registerStudent(ctx) {
-   try {
-     const { data } = ctx.request.body;
-     const parsedData = JSON.parse(data || '{}');
+  // ✅ Register Student with JSON + Avatar Upload
+  async registerStudent(ctx) {
+    try {
+      const { data } = ctx.request.body;
+      const parsedData = JSON.parse(data || '{}');
 
-     const { username, email, password, subjects } = parsedData;
+      const { username, email, password, subjects } = parsedData;
 
-     if (!username || !email || !password) {
-       return ctx.badRequest('Username, email, and password are required');
-     }
+      if (!username || !email || !password) {
+        return ctx.badRequest('Username, email, and password are required');
+      }
 
-     // Check for unique username
-     const existingUser = await strapi.query('plugin::users-permissions.user').findOne({
-       where: { username },
-     });
+      // Check for unique username
+      const existingUser = await strapi.query('plugin::users-permissions.user').findOne({
+        where: { username },
+      });
 
-     if (existingUser) {
-       return ctx.badRequest('Username is already taken');
-     }
+      if (existingUser) {
+        return ctx.badRequest('Username is already taken');
+      }
 
-     const avatarFile = ctx.request.files?.avatar;
-
-     return await strapi.db.transaction(async (trx) => {
-       try {
-         // 1️⃣ Create User
-         const user = await strapi.plugins['users-permissions'].services.user.add({
-           username,
-           email,
-           password,
-           role: 3, // Student role ID
-           blocked: false,
-           provider: 'local',
-           userType: 'Student',
-         });
-
-         // 2️⃣ Handle Avatar Upload (if provided)
-         if (avatarFile) {
-           await strapi.plugin('upload').service('upload').upload({
-             data: {
-               refId: user.id,
-               ref: 'plugin::users-permissions.user',
-               field: 'avatar',
-             },
-             files: avatarFile,
-           });
-         }
-
-         // 3️⃣ Create Student Entry
-         const student = await strapi.entityService.create('api::student.student', {
-           data: {
-             user: user.id,
-             subjects,
-           },
-           transacting: trx,
-         });
-
-         // 4️⃣ Fetch Updated Student
-         const updatedStudent = await strapi.entityService.findOne('api::student.student', student.id, {
-           populate: {
-             user: {
-               fields: ['id', 'username', 'email'],
-               populate: {
-                 avatar: {
-                   fields: ['id', 'name', 'url', 'formats'],
-                 },
-               },
-             },
-             subjects: {
-               fields: ['id', 'name', 'code'],
-             },
-           },
-           transacting: trx,
-         });
-
-         return ctx.send({ message: 'Student registered successfully', student: updatedStudent });
-       } catch (error) {
-         console.error('Error during student registration:', error);
-         throw error;
-       }
-     });
-   } catch (error) {
-     console.error('Error in registerStudent:', error);
-     ctx.badRequest('Failed to register student');
-   }
- },
+      const avatarFile = ctx.request.files?.avatar;
+      const confirmationToken = crypto.randomBytes(20).toString('hex');
+      const serverUrl = strapi.config.get('server.url') || 'http://localhost:1337';
+      const confirmationLink = `${serverUrl}/api/auth/email-confirmation?confirmation=${confirmationToken}`;
 
 
+      return await strapi.db.transaction(async (trx) => {
+        try {
+          // 1️⃣ Create User
+          const user = await strapi.plugins['users-permissions'].services.user.add({
+            username,
+            email,
+            password,
+            role: 3, // Student role ID
+            blocked: false,
+            provider: 'local',
+            userType: 'Student',
+            confirmed: false,
+            confirmationToken: confirmationToken,
+          });
 
-async update(ctx) {
-  const { id } = ctx.params;
+          // 2️⃣ Handle Avatar Upload (if provided)
+          if (avatarFile) {
+            await strapi.plugin('upload').service('upload').upload({
+              data: {
+                refId: user.id,
+                ref: 'plugin::users-permissions.user',
+                field: 'avatar',
+              },
+              files: avatarFile,
+            });
+          }
 
-  try {
-    const { data } = ctx.request.body;
-    const parsedData = JSON.parse(data || '{}');
-
-    const {
-      access,
-      subjects,
-      name,
-      email,
-      academic_qualification,
-      studyboard,
-      gradelevel,
-      bio,
-      ...rest
-    } = parsedData;
-
-    return await strapi.db.transaction(async (trx) => {
-      try {
-        // Fetch the existing student
-        const student = await strapi.entityService.findOne('api::student.student', id, {
-          populate: ['user'],
-          transacting: trx,
-        });
-
-        if (!student) throw new Error('Student not found');
-
-        // ✅ Update User Details (if name or email changed)
-        if (name || email) {
-          await strapi.query('plugin::users-permissions.user').update({
-            where: { id: student.user.id },
+          // 3️⃣ Create Student Entry
+          const student = await strapi.entityService.create('api::student.student', {
             data: {
-              username: name || student.user.username,
-              email: email || student.user.email,
-              blocked: access === false,
+              user: user.id,
+              subjects,
             },
             transacting: trx,
           });
-        }
 
-        // ✅ Prepare Update Payload
-        const updatedData = {
-          subjects: Array.isArray(subjects) ? subjects : undefined,
-          academic_qualification: academic_qualification || undefined,
-          studyboard: studyboard || undefined,
-          gradelevel: gradelevel || undefined,
-          bio: bio || undefined,
-          ...rest,
-        };
-
-        // Remove undefined keys to avoid overwriting existing data
-        const cleanedData = Object.fromEntries(
-          Object.entries(updatedData).filter(([_, value]) => value !== undefined)
-        );
-
-        // ✅ Update Student Entity
-        const updatedStudent = await strapi.entityService.update('api::student.student', id, {
-          data: cleanedData,
-          populate: {
-            user: {
-              fields: ['id', 'username', 'email', 'blocked'],
+          // Use the Email Designer plugin to send the confirmation email
+          await strapi
+          .plugin('email-designer')
+          .service('email')
+          .sendTemplatedEmail(
+            {
+              to: user.email,
             },
-            subjects: {
-              fields: ['id', 'name', 'code'],
+            {
+              templateReferenceId: 1,
+              subject: `Welcome to Studywitheve, ${user.username}! Please confirm your account.`,
             },
-            academic_qualification: {
-              fields: ['id', 'name'],
+            {
+              username: user.username,
+              confirmationLink,
+            }
+          );
+
+          // 4️⃣ Fetch Updated Student
+          const updatedStudent = await strapi.entityService.findOne('api::student.student', student.id, {
+            populate: {
+              user: {
+                fields: ['id', 'username', 'email'],
+                populate: {
+                  avatar: {
+                    fields: ['id', 'name', 'url', 'formats'],
+                  },
+                },
+              },
+              subjects: {
+                fields: ['id', 'name', 'code'],
+              },
             },
-            studyboard: {
-              fields: ['id', 'boardName'],
-            },
-            gradelevel: {
-              fields: ['id', 'gradeName'],
-            },
-          },
-          transacting: trx,
-        });
-
-        return ctx.send({ message: 'Student updated successfully', student: updatedStudent });
-      } catch (error) {
-        console.error('Error during student update:', error);
-        throw error;
-      }
-    });
-  } catch (error) {
-    console.error('Error in updateStudent:', error);
-    ctx.badRequest('Failed to update student');
-  }
-},
-
-async updateAvatar(ctx) {
-  const { id } = ctx.params; // User ID from the route
-
-  try {
-    const avatarFile = ctx.request.files?.avatar;
-
-    if (!avatarFile) {
-      return ctx.badRequest('Avatar file is required');
-    }
-
-    return await strapi.db.transaction(async (trx) => {
-      try {
-        // ✅ Fetch the user directly
-        const user = await strapi.query('plugin::users-permissions.user').findOne({
-          where: { id },
-          populate: ['avatar'],
-          transacting: trx,
-        });
-
-        if (!user) {
-          throw new Error('User not found');
-        }
-
-        // ✅ Remove existing avatar if it exists
-        if (user?.avatar?.id) {
-          await strapi.plugin('upload').service('upload').remove({
-            id: user.avatar.id,
+            transacting: trx,
           });
+
+          return ctx.send({ message: 'Student registered successfully', student: updatedStudent });
+        } catch (error) {
+          console.error('Error during student registration:', error);
+          throw error;
         }
+      });
+    } catch (error) {
+      console.error('Error in registerStudent:', error);
+      ctx.badRequest('Failed to register student');
+    }
+  },
 
-        // ✅ Upload new avatar into 'avatars' folder
-        const uploadedFiles = await strapi.plugin('upload').service('upload').upload({
-          data: {
-            refId: user.id,
-            ref: 'plugin::users-permissions.user',
-            field: 'avatar',
-            folderPath: 'avatars', // Ensure the folder is correctly set
-          },
-          files: avatarFile,
-        });
 
-        // ✅ Retrieve the uploaded file's URL
-        const uploadedAvatar = uploadedFiles?.[0];
-        const avatarUrl = uploadedAvatar?.url || '';
 
-        // ✅ Return updated avatar URL
-        return ctx.send({
-          message: 'Avatar updated successfully',
-          avatarUrl,
-        });
-      } catch (error) {
-        console.error('Error during avatar update:', error);
-        throw error;
+  async update(ctx) {
+    const { id } = ctx.params;
+
+    try {
+      const { data } = ctx.request.body;
+      const parsedData = JSON.parse(data || '{}');
+
+      const {
+        access,
+        subjects,
+        name,
+        email,
+        academic_qualification,
+        studyboard,
+        gradelevel,
+        bio,
+        ...rest
+      } = parsedData;
+
+      return await strapi.db.transaction(async (trx) => {
+        try {
+          // Fetch the existing student
+          const student = await strapi.entityService.findOne('api::student.student', id, {
+            populate: ['user'],
+            transacting: trx,
+          });
+
+          if (!student) throw new Error('Student not found');
+
+          // ✅ Update User Details (if name or email changed)
+          if (name || email) {
+            await strapi.query('plugin::users-permissions.user').update({
+              where: { id: student.user.id },
+              data: {
+                username: name || student.user.username,
+                email: email || student.user.email,
+                blocked: access === false,
+              },
+              transacting: trx,
+            });
+          }
+
+          // ✅ Prepare Update Payload
+          const updatedData = {
+            subjects: Array.isArray(subjects) ? subjects : undefined,
+            academic_qualification: academic_qualification || undefined,
+            studyboard: studyboard || undefined,
+            gradelevel: gradelevel || undefined,
+            bio: bio || undefined,
+            ...rest,
+          };
+
+          // Remove undefined keys to avoid overwriting existing data
+          const cleanedData = Object.fromEntries(
+            Object.entries(updatedData).filter(([_, value]) => value !== undefined)
+          );
+
+          // ✅ Update Student Entity
+          const updatedStudent = await strapi.entityService.update('api::student.student', id, {
+            data: cleanedData,
+            populate: {
+              user: {
+                fields: ['id', 'username', 'email', 'blocked'],
+              },
+              subjects: {
+                fields: ['id', 'name', 'code'],
+              },
+              academic_qualification: {
+                fields: ['id', 'name'],
+              },
+              studyboard: {
+                fields: ['id', 'boardName'],
+              },
+              gradelevel: {
+                fields: ['id', 'gradeName'],
+              },
+            },
+            transacting: trx,
+          });
+
+          return ctx.send({ message: 'Student updated successfully', student: updatedStudent });
+        } catch (error) {
+          console.error('Error during student update:', error);
+          throw error;
+        }
+      });
+    } catch (error) {
+      console.error('Error in updateStudent:', error);
+      ctx.badRequest('Failed to update student');
+    }
+  },
+
+  async updateAvatar(ctx) {
+    const { id } = ctx.params; // User ID from the route
+
+    try {
+      const avatarFile = ctx.request.files?.avatar;
+
+      if (!avatarFile) {
+        return ctx.badRequest('Avatar file is required');
       }
-    });
-  } catch (error) {
-    console.error('Error in updateAvatar:', error);
-    ctx.badRequest('Failed to update avatar');
-  }
-},
+
+      return await strapi.db.transaction(async (trx) => {
+        try {
+          // ✅ Fetch the user directly
+          const user = await strapi.query('plugin::users-permissions.user').findOne({
+            where: { id },
+            populate: ['avatar'],
+            transacting: trx,
+          });
+
+          if (!user) {
+            throw new Error('User not found');
+          }
+
+          // ✅ Remove existing avatar if it exists
+          if (user?.avatar?.id) {
+            await strapi.plugin('upload').service('upload').remove({
+              id: user.avatar.id,
+            });
+          }
+
+          // ✅ Upload new avatar into 'avatars' folder
+          const uploadedFiles = await strapi.plugin('upload').service('upload').upload({
+            data: {
+              refId: user.id,
+              ref: 'plugin::users-permissions.user',
+              field: 'avatar',
+              folderPath: 'avatars', // Ensure the folder is correctly set
+            },
+            files: avatarFile,
+          });
+
+          // ✅ Retrieve the uploaded file's URL
+          const uploadedAvatar = uploadedFiles?.[0];
+          const avatarUrl = uploadedAvatar?.url || '';
+
+          // ✅ Return updated avatar URL
+          return ctx.send({
+            message: 'Avatar updated successfully',
+            avatarUrl,
+          });
+        } catch (error) {
+          console.error('Error during avatar update:', error);
+          throw error;
+        }
+      });
+    } catch (error) {
+      console.error('Error in updateAvatar:', error);
+      ctx.badRequest('Failed to update avatar');
+    }
+  },
 
   // ✅ Delete Student
   async delete(ctx) {

@@ -7,6 +7,7 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::marking.marking', ({ strapi }) => ({
+  
 
   async markPaper(ctx) {
     try {
@@ -54,7 +55,9 @@ module.exports = createCoreController('api::marking.marking', ({ strapi }) => ({
       // Start marking process asynchronously
       this.processAnalysis(ctx, marking, workflowId, markingSchemeResource);
 
-      return;
+      return ctx.send({
+        message: "Marking has been started, please check back after few minutes",
+      });
     } catch (error) {
       strapi.log.error('Error analyzing marking:', error);
       return ctx.internalServerError('Failed to analyze marking');
@@ -64,50 +67,26 @@ module.exports = createCoreController('api::marking.marking', ({ strapi }) => ({
   async processAnalysis(ctx, marking, workflowId, markingSchemeResource) {
     try {
 
+      let gptprompt = `
+          This is student answers, try to extract the answers and match it to the questions asked along with the number, the number sequence is important,
+      `;
       // 1) Define the base GPT prompt
-      let gptPrompt = `
-            You are an expert examiner. Your task is to compare a provided student's work with a marking scheme and grade it according to the scheme. 
-            The student’s work consists of multiple pages, and each page may contain different sections.
-
-            Instructions:
-            1. Extract Sections & Numbering
-              - Identify distinct sections in the student's work.
-              - Assign the same section number to each based on its position in the document.
-            2. Compare with Marking Scheme
-              - For each section, locate the corresponding criteria in the marking scheme.
-              - Check if the student’s response meets the marking scheme's requirements.
-              - Award marks accordingly.
-            3. Provide Detailed Feedback
-              - Clearly indicate marks awarded per section.
-              - Include justifications for awarded or deducted marks.
-              - Offer constructive feedback where improvements can be made.
+      let chatgptprompt = `
+            Compare the student's answer with the provided marking criteria, validate each answer, and assign marks up to the max_marks while preserving the question number.
+Provide detailed feedback with justifications for marks awarded or deducted, including constructive improvement suggestions.
             `;
 
       // 2) Adjust the prompt if no marking scheme is provided
       if (!markingSchemeResource) {
-        gptPrompt = `
-            You are an expert examiner. Your task is to evaluate a student's work and generate a marking scheme based on the content. 
-            The student’s work consists of multiple pages, and each page may contain different sections.
-
-            Instructions:
-            1. Extract Sections & Numbering
-              - Identify distinct sections in the student's work.
-              - Assign the same section number to each based on its position in the document.
-            2. Generate Marking Scheme
-              - Create a marking scheme for each section based on the content.
-              - Define criteria for awarding marks.
-            3. Perform Auto-Marking
-              - Award marks based on the generated marking scheme.
-            4. Provide Detailed Feedback
-              - Clearly indicate marks awarded per section.
-              - Include justifications for awarded or deducted marks.
-              - Offer constructive feedback where improvements can be made.
+        chatgptprompt = `
+           Mark the student's answer answer, and assign marks up to the max_marks while preserving the question number.
+Provide detailed feedback with justifications for marks awarded or deducted, including constructive improvement suggestions along with marking criteria used.
             `;
       }
 
       // 3) If topictree exists, append additional instructions to gptPrompt
       if (marking?.assessment?.topictree?.length) {
-        gptPrompt += `
+        chatgptprompt += `
 
             Additional Instruction:
             "Match the questions under this Topic Hierarchy only:
@@ -117,22 +96,29 @@ module.exports = createCoreController('api::marking.marking', ({ strapi }) => ({
             `;
       }
 
-      const outputFields = ["geminiResponse"];
+      const outputFields = ["chatGPTResponse"];
 
       // Prepare the payload
       const payload = {
         input: {
           assets: [
-            { id: marking.submission_file[0].id, processor: 'gemini' },
+            { id: marking.submission_file[0].id, type:'answersheet',processor: 'gemini' },
           ],
-          gptPrompt,
+          gptprompt,
+          chatgptprompt
         },
         output: outputFields
       };
 
       // Add marking scheme to the payload if provided
       if (markingSchemeResource) {
-        payload.input.assets.push({ id: markingSchemeResource.id, processor: 'gemini' });
+        payload.input.assets.push({ id: markingSchemeResource.id, type:'markingscheme',processor: 'gemini' });
+        payload.input.markschemeprompt = "Extract the markscheme along with the section number/question number in format 1.x.x as provided and retreive marking criteria";
+      } else {
+        // If no marking scheme provided, add an input field "content"
+        payload.input.content = "Auto generate the marking scheme";
+        payload.input.markschemeprompt = "It is a auto markschcme"; //by logic will not be used.
+         
       }
 
       // Execute the workflow
@@ -145,9 +131,9 @@ module.exports = createCoreController('api::marking.marking', ({ strapi }) => ({
 
       // Prepare update data
       const updateData = {
-        marking: result.geminiResponse.questions || undefined,
-        feedback: result.geminiResponse.overall_feedback || undefined,
-        finalscore: result.geminiResponse.final_score || undefined,
+        marking: result.chatGPTResponse.questions || undefined,
+        feedback: result.chatGPTResponse.overall_feedback || undefined,
+        finalscore: result.chatGPTResponse.final_score || undefined,
         status: 'MarkingCompleted' // Update status once marking is completed
       };
 
