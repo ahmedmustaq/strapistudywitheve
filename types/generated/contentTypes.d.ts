@@ -476,6 +476,7 @@ export interface ApiAiTrainingSessionAiTrainingSession
     duration: Attribute.Integer;
     feedback: Attribute.Text;
     finalscore: Attribute.Integer;
+    focusarea: Attribute.String;
     generationtype: Attribute.Enumeration<['AI', 'Revision']> &
       Attribute.DefaultTo<'AI'>;
     marking: Attribute.JSON;
@@ -852,6 +853,46 @@ export interface ApiMarkingMarking extends Schema.CollectionType {
   };
 }
 
+export interface ApiNotificationNotification extends Schema.CollectionType {
+  collectionName: 'notifications';
+  info: {
+    description: '';
+    displayName: 'Notification';
+    pluralName: 'notifications';
+    singularName: 'notification';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::notification.notification',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    frequency: Attribute.Enumeration<['Immediate', 'Daily', 'Monthly']>;
+    notificationtype: Attribute.Enumeration<
+      ['AITraining', 'Marking', 'Resource']
+    >;
+    publishedAt: Attribute.DateTime;
+    student: Attribute.Relation<
+      'api::notification.notification',
+      'oneToOne',
+      'api::student.student'
+    >;
+    type: Attribute.Enumeration<['Email', 'Mobile', 'Whatsapp']>;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<
+      'api::notification.notification',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiQuestionbankQuestionbank extends Schema.CollectionType {
   collectionName: 'questionbanks';
   info: {
@@ -1028,6 +1069,7 @@ export interface ApiResourcetypeResourcetype extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
+    assessmentonly: Attribute.Boolean & Attribute.DefaultTo<false>;
     code: Attribute.String;
     createdAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1129,7 +1171,7 @@ export interface ApiStudyprojectStudyproject extends Schema.CollectionType {
     singularName: 'studyproject';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     assessments: Attribute.Relation<
@@ -1149,7 +1191,6 @@ export interface ApiStudyprojectStudyproject extends Schema.CollectionType {
     endDate: Attribute.Date;
     name: Attribute.String;
     objectives: Attribute.String;
-    publishedAt: Attribute.DateTime;
     startDate: Attribute.Date;
     student: Attribute.Relation<
       'api::studyproject.studyproject',
@@ -1209,6 +1250,40 @@ export interface ApiSubjectSubject extends Schema.CollectionType {
   };
 }
 
+export interface ApiSubscriberSubscriber extends Schema.CollectionType {
+  collectionName: 'subscribers';
+  info: {
+    displayName: 'subscriber';
+    pluralName: 'subscribers';
+    singularName: 'subscriber';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    code: Attribute.String & Attribute.Required;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::subscriber.subscriber',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    email: Attribute.Email & Attribute.Required;
+    publishedAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<
+      'api::subscriber.subscriber',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    verified: Attribute.Boolean &
+      Attribute.Required &
+      Attribute.DefaultTo<false>;
+  };
+}
+
 export interface ApiTopicGradeTopicGrade extends Schema.CollectionType {
   collectionName: 'topic_grades';
   info: {
@@ -1259,7 +1334,7 @@ export interface ApiTopicTopic extends Schema.CollectionType {
     singularName: 'topic';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     code: Attribute.String;
@@ -1283,7 +1358,6 @@ export interface ApiTopicTopic extends Schema.CollectionType {
       'oneToOne',
       'api::topic.topic'
     >;
-    publishedAt: Attribute.DateTime;
     specs: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     subject: Attribute.Relation<
       'api::topic.topic',
@@ -1441,6 +1515,55 @@ export interface PluginContentReleasesReleaseAction
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<
       'plugin::content-releases.release-action',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface PluginEmailDesignerEmailTemplate
+  extends Schema.CollectionType {
+  collectionName: 'email_templates';
+  info: {
+    displayName: 'Email-template';
+    name: 'email-template';
+    pluralName: 'email-templates';
+    singularName: 'email-template';
+  };
+  options: {
+    comment: '';
+    draftAndPublish: false;
+    increments: true;
+    timestamps: true;
+  };
+  pluginOptions: {
+    'content-manager': {
+      visible: false;
+    };
+    'content-type-builder': {
+      visible: false;
+    };
+  };
+  attributes: {
+    bodyHtml: Attribute.Text;
+    bodyText: Attribute.Text;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'plugin::email-designer.email-template',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    design: Attribute.JSON;
+    enabled: Attribute.Boolean & Attribute.DefaultTo<true>;
+    name: Attribute.String;
+    subject: Attribute.String;
+    tags: Attribute.JSON;
+    templateReferenceId: Attribute.Integer & Attribute.Unique;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<
+      'plugin::email-designer.email-template',
       'oneToOne',
       'admin::user'
     > &
@@ -1747,6 +1870,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
+    logintoken: Attribute.BigInteger;
     password: Attribute.Password &
       Attribute.Private &
       Attribute.SetMinMaxLength<{
@@ -2073,6 +2197,7 @@ declare module '@strapi/types' {
       'api::examtype.examtype': ApiExamtypeExamtype;
       'api::gradelevel.gradelevel': ApiGradelevelGradelevel;
       'api::marking.marking': ApiMarkingMarking;
+      'api::notification.notification': ApiNotificationNotification;
       'api::questionbank.questionbank': ApiQuestionbankQuestionbank;
       'api::questiontype.questiontype': ApiQuestiontypeQuestiontype;
       'api::resource.resource': ApiResourceResource;
@@ -2080,11 +2205,13 @@ declare module '@strapi/types' {
       'api::student.student': ApiStudentStudent;
       'api::studyproject.studyproject': ApiStudyprojectStudyproject;
       'api::subject.subject': ApiSubjectSubject;
+      'api::subscriber.subscriber': ApiSubscriberSubscriber;
       'api::topic-grade.topic-grade': ApiTopicGradeTopicGrade;
       'api::topic.topic': ApiTopicTopic;
       'api::tutor.tutor': ApiTutorTutor;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
+      'plugin::email-designer.email-template': PluginEmailDesignerEmailTemplate;
       'plugin::i18n.locale': PluginI18NLocale;
       'plugin::upload.file': PluginUploadFile;
       'plugin::upload.folder': PluginUploadFolder;
