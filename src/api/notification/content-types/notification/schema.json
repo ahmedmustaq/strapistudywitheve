@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "notifications",
+  "info": {
+    "singularName": "notification",
+    "pluralName": "notifications",
+    "displayName": "Notification",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "Email",
+        "Mobile",
+        "Whatsapp"
+      ]
+    },
+    "frequency": {
+      "type": "enumeration",
+      "enum": [
+        "Immediate",
+        "Daily",
+        "Monthly"
+      ]
+    },
+    "student": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::student.student"
+    },
+    "notificationtype": {
+      "type": "enumeration",
+      "enum": [
+        "AITraining",
+        "Marking",
+        "Resource"
+      ]
+    }
+  }
+}

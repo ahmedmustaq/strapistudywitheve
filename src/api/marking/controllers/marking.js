@@ -7,6 +7,57 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::marking.marking', ({ strapi }) => ({
+
+
+  async startAssessment(ctx) {
+    try {
+      // Extract and parse the JSON data.
+      const { id } = ctx.params;
+     
+
+      // Get the file from form-data.
+      const submissionFile =
+        ctx.request.files && ctx.request.files["files.submission_file"];
+      if (!submissionFile) {
+        return ctx.badRequest("Submission file is missing");
+      }
+
+      // Upload the file using Strapi's upload service.
+      const uploadService = strapi.plugins.upload.services.upload;
+      const uploadedFiles = await uploadService.upload({
+        data: {},
+        files: submissionFile,
+      });
+
+      if (!id) {
+        return ctx.badRequest("markingId is missing in assessment data");
+      }
+
+      const markingData = {
+
+        status: 'MarkingInProgress', // Set the initial status
+        submission_file: uploadedFiles, // Associate the uploaded file(s) with the marking record
+      };
+
+      // Update the marking record with the uploaded file information.
+      await strapi.entityService.update("api::marking.marking", id, {
+        data: markingData,
+      });
+
+
+      // Call markPaper asynchronously without awaiting its response.
+      this.markPaper(ctx);
+
+      return ctx.send({
+        message:
+          "The answersheet has been submitted and marking process started.",
+       
+      });
+    } catch (error) {
+      console.error("Error in addAssessment:", error);
+      ctx.throw(500, "Internal Server Error");
+    }
+  },
   
 
   async markPaper(ctx) {
@@ -37,15 +88,24 @@ module.exports = createCoreController('api::marking.marking', ({ strapi }) => ({
 
 
 
-      if (!relevantResource || !relevantResource.resourcetype.workflow_name) {
-        return ctx.badRequest('Workflow not found for this marking type');
-      }
+      // if (!relevantResource || !relevantResource.resourcetype.workflow_name) {
+      //   return ctx.badRequest('Workflow not found for this marking type');
+      // }
 
       if (!markingSchemeResource) {
         strapi.log.info('Automarking selected');
       }
-
-      const workflowId = relevantResource.resourcetype.workflow_name.id;
+      //workflow name is constant
+      const workflows = await strapi.entityService.findMany('plugin::workflow.workflow', {
+        filters: { name: "MarkPapers" }, // Filter by workflow_name
+        limit: 1, // Limit to 1 result
+      });
+  
+      if (!workflows || workflows.length === 0) {
+        return ctx.badRequest('Workflow not found for this marking type');
+      }
+  
+      const workflowId = workflows[0].id; // Get the workflow ID
 
       // Update marking status to MarkingInProgress
       await strapi.entityService.update('api::marking.marking', marking.id, {
@@ -55,9 +115,9 @@ module.exports = createCoreController('api::marking.marking', ({ strapi }) => ({
       // Start marking process asynchronously
       this.processAnalysis(ctx, marking, workflowId, markingSchemeResource);
 
-      return ctx.send({
-        message: "Marking has been started, please check back after few minutes",
-      });
+      // return ctx.send({
+      //   message: "Marking has been started, please check back after few minutes",
+      // });
     } catch (error) {
       strapi.log.error('Error analyzing marking:', error);
       return ctx.internalServerError('Failed to analyze marking');
@@ -73,15 +133,12 @@ module.exports = createCoreController('api::marking.marking', ({ strapi }) => ({
       // 1) Define the base GPT prompt
       let chatgptprompt = `
             Compare the student's answer with the provided marking criteria, validate each answer, and assign marks up to the max_marks while preserving the question number.
-Provide detailed feedback with justifications for marks awarded or deducted, including constructive improvement suggestions.
             `;
 
       // 2) Adjust the prompt if no marking scheme is provided
       if (!markingSchemeResource) {
         chatgptprompt = `
-           Mark the student's answer answer, and assign marks up to the max_marks while preserving the question number.
-Provide detailed feedback with justifications for marks awarded or deducted, including constructive improvement suggestions along with marking criteria used.
-            `;
+           Mark the student's answer answer, and assign marks up to the max_marks while preserving the question number.`;
       }
 
       // 3) If topictree exists, append additional instructions to gptPrompt
@@ -132,7 +189,7 @@ Provide detailed feedback with justifications for marks awarded or deducted, inc
       // Prepare update data
       const updateData = {
         marking: result.chatGPTResponse.questions || undefined,
-        feedback: result.chatGPTResponse.overall_feedback || undefined,
+      //  feedback: result.chatGPTResponse.overall_feedback || undefined,
         finalscore: result.chatGPTResponse.final_score || undefined,
         status: 'MarkingCompleted' // Update status once marking is completed
       };

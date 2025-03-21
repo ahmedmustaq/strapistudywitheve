@@ -2,7 +2,7 @@
 
 const Flowed = require('flowed'); // Using require for CommonJS
 const { FlowManager} = Flowed;
-const { PDFResolver,WebResolver,SetterResolver,RestResolver, PrintResolver, ChatGPTResolver,GeminiResolver,AssetResolver } = require('./resolvers/index.js'); // Ensure correct path and CommonJS compatibility
+const { ChatBatchGPTResolver,PDFResolver,WebResolver,SetterResolver,RestResolver, PrintResolver, ChatGPTResolver,GeminiResolver,AssetResolver } = require('./resolvers/index.js'); // Ensure correct path and CommonJS compatibility
 
 /**
  * Creates an isolated FlowManager instance with resolvers registered.
@@ -13,6 +13,7 @@ const resolvers = {
       Rest: RestResolver,
       Print: PrintResolver,
       ChatGPT: ChatGPTResolver,
+      ChatGPTBatch: ChatBatchGPTResolver,
       Gemini: GeminiResolver,
       Asset: AssetResolver,
       Set: SetterResolver,
